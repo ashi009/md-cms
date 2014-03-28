@@ -1,0 +1,15 @@
+{
+  "name": "md-cms",
+  "author": "Xiaoyi Shi <ashi009@gmail.com>",
+  "description": "Markdown based CMS",
+  "version": "0.0.1",
+  "license": "MIT",
+  "dependencies": {
+    "apollojs": "*",
+    "require-all": "*",
+    "match-files": "*",
+    "marked": "*",
+    "async": "*",
+    "han": "*"
+  }
+}
