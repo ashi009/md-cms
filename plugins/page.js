@@ -1,7 +1,6 @@
 module.exports = function(code, page, callback) {
   try {
-    var info = JSON.parse(code);
-    page._info = info;
+    page.info = JSON.parse(code);
     callback(null, '');
   } catch (e) {
     callback(e);

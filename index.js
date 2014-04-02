@@ -6,7 +6,13 @@ var marked = require('marked');
 var async = require('async');
 
 var Page = require('./page');
+var plugins = require('./plugins');
 
+/**
+ * Constructor of MD CMS
+ * @class MdCms
+ * @param {Object} options
+ */
 function MdCms(options) {
   this._root = Path.resolve(options.root);
   this._pages = null;
@@ -16,7 +22,9 @@ function MdCms(options) {
 $declare(MdCms, {
   /**
    * get Pages of the CMS
-   * @param  {Function} callback(err, pages)
+   * @private
+   * @method _getPages
+   * @param  {Function} callback cb(err, pages)
    */
   _getPages: function(callback) {
     if (this._pages)
@@ -39,6 +47,13 @@ $declare(MdCms, {
     });
   },
 
+  /**
+   * Get Page List
+   * @method getPageList
+   * @param  {Function} callback cb(err, list)
+   * Note: calling this method, will update all data
+   * Note: list is an object, { path: pageInfo }
+   */
   getPageList: function(callback) {
     if (this._list)
       return callback(null, this._list);
@@ -73,15 +88,25 @@ $declare(MdCms, {
     });
   },
 
+  /**
+   * Refresh caches in the CMS
+   * @method refresh
+   * @param  {Function} callback cb(err)
+   */
   refresh: function(callback) {
     this._pages = null;
     this._list = null;
     this._getPages(function(err) {
-      if (err)
-        return callback(err);
+      callback(err);
     });
   },
 
+  /**
+   * Get a single page instance
+   * @method getPage
+   * @param  {string}   path     path of the page
+   * @param  {Function} callback cb(err, page, html)
+   */
   getPage: function(path, callback) {
     var page = this._pages && this._pages[path];
     if (page)
@@ -91,6 +116,13 @@ $declare(MdCms, {
     callback(null);
   }
 
+});
+
+$define(MdCms, {
+  /**
+   * @property {object} plugins plugins of MdCms
+   */
+  plugins: plugins
 });
 
 function ctimeSorter(lhp, rhp) {

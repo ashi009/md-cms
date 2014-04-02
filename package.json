@@ -2,7 +2,7 @@
   "name": "md-cms",
   "author": "Xiaoyi Shi <ashi009@gmail.com>",
   "description": "Markdown based CMS",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "repository": {
     "type" : "git",
     "url" : "https://github.com/ashi009/md-cms.git"

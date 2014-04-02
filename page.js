@@ -5,30 +5,57 @@ var plugins = require('./plugins');
 
 var rendererProto = marked.Renderer.prototype;
 
+function TocEntry(level, title, anchor) {
+  this.level = level;
+  this.title = title;
+  this.anchor = anchor;
+  this.entries = [];
+}
+
 function Renderer(options, page) {
   marked.Renderer.call(this, options);
   this.page = page;
+  this.tocStack = [];
 }
 $inherit(Renderer, marked.Renderer, {
   heading: function(text, level, raw) {
-    if (level == 1 && !this.page.title) {
-      this.page.title = text;
+    var anchor = this.options.headerPrefix + han.letter(raw, ' ')
+        .replace(/[^\w]+/g, '-');
+    var tocEntry = new TocEntry(level, text, anchor);
+    if (level == 1) {
+      var info = this.page.info;
+      info.title = text;
+      info.toc = tocEntry;
+    } else {
+      while (this.tocStack.back.level >= level)
+        this.tocStack.pop();
+      while (this.tocStack.back.level < level - 1) {
+        var psudoEntry = new TocEntry(this.tocStack.back.level + 1);
+        this.tocStack.back.entries.push(psudoEntry);
+        this.tocStack.push(psudoEntry);
+      }
+      this.tocStack.back.entries.push(tocEntry);
     }
-    raw = han.letter(raw, ' ');
-    return rendererProto.heading.call(this, text, level, raw);
+    this.tocStack.push(tocEntry);
+    return '<h' + level +
+        ' id="' + anchor + '">' + text +
+        '</h' + level + '>';
   },
   code: function(code, lang) {
     if (lang.startsWith('cms.'))
       return code;
-    return rendererProto.code.call(this, code, lang);
+    return rendererProto.code.apply(this, arguments);
   }
 });
 
 function Page(sourcePath) {
-  this.title = null;
-  this.author = null;
-  this.ctime = null;
-  this.mtime = null;
+  this._info = {
+    title: null,
+    author: null,
+    ctime: Date.now(),
+    mtime: Date.now(),
+    toc: null
+  };
   this._sourcePath = sourcePath;
   this._html = null;
   this._dirty = true;
@@ -36,26 +63,17 @@ function Page(sourcePath) {
 $declare(Page, {
   /**
    * Set a page's basic info
-   * @private
    * @param {object} info info descriptor
    */
-  set _info(info) {
-    for (var key in this) {
-      if (key[0] != '_' && info[key])
-        this[key] = info[key];
-    }
+  set info(info) {
+    $extend(this._info, info, true);
   },
   /**
    * get a page's basic info
-   * @private
    * @return {[type]} [description]
    */
-  get _info() {
-    var info = {};
-    for (var key in this)
-      if (key[0] != '_')
-        info[key] = this[key];
-    return info;
+  get info() {
+    return this._info;
   },
   /**
    * Render a page
