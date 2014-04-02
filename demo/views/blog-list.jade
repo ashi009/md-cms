@@ -1,0 +1,7 @@
+extend layout
+
+block content
+  ul
+    for page, path in list
+      li
+        a(href=path)= page.title

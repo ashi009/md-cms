@@ -1,0 +1,16 @@
+extends layout
+
+mixin toc(root)
+  if (root.entries.length)
+    ul
+      for entry in root.entries
+        li
+          if entry.title
+            a(href="#" + entry.anchor)= entry.title
+          mixin toc(entry)
+
+block content
+  div
+    h2 TOC
+    mixin toc(page.info.toc)
+  !{html}
