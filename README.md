@@ -26,6 +26,9 @@ var cms = new MdCms({
   root: path.join(__dirname, 'content')
 });
 
+// Note: until cms.getPageList() is called, no index will
+//       be built, and cms.getPage() won't find any page.
+
 app.get('/', function(req, res, next) {
   cms.getPageList(function(err, list) {
     if (err)
